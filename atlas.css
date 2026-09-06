@@ -1,0 +1,14 @@
+/* Overrides for the redrawn atlas: the cartouche is now drawn on the canvas. */
+.mapcaption{display:none}
+.mapwrap{border-color:#b9a57a;background:#e8dab6}
+#shader{opacity:.28}
+.headright button{white-space:nowrap}
+.credits p+p{margin-top:8px}
+@media(max-width:1000px){.headright{flex-wrap:wrap;justify-content:flex-end}}
+
+/* the globe sits in a dark study; panels stay parchment */
+#globe-film{background:#17100b}
+#globe3d{background:radial-gradient(ellipse at 50% 42%,#5c4733 0%,#2b1d13 52%,#100a06 100%)}
+#globe-film:after{border-color:#5a4630}
+#globe-film{border-color:#3b2b1c;box-shadow:inset 0 0 0 1px #6b563a}
+.globe-footer{color:#b59f7a}
