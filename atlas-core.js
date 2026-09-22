@@ -178,7 +178,7 @@ function build(opts={}){
   while(heap.size){const i=heap.pop();order.push(i);const x=i%GW,y=(i-x)/GW;for(const [dx,dy] of D8){const nx=x+dx,ny=y+dy;if(nx<1||ny<1||nx>=GW-1||ny>=GH-1)continue;const j=ny*GW+nx;if(!mask[j]||seen[j])continue;seen[j]=1;down[j]=i;level[j]=Math.max(h[j],level[i]+.002);heap.push(j)}}
   const moistureBase=new Float32Array(N);for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const i=y*GW+x;moistureBase[i]=.5+.5*NB.fbm(x/95+off[1],y/95+off[3],4)}
   const flow=new Float32Array(N);for(let k=order.length-1;k>=0;k--){const i=order[k];flow[i]+=.4+moistureBase[i]*1.2;const j=down[i];if(j>=0&&mask[j])flow[j]+=flow[i]}
-  const thrFlow=Math.max(120,landCount/(kind==='desert'?300:640));
+  const thrFlow=Math.max(120,landCount/(kind==='desert'?300:640)*(traits.rivers?.55:traits.dryland?1.8:1));
   const isRiver=new Uint8Array(N);let riverCells=0;for(let i=0;i<N;i++)if(mask[i]&&flow[i]>=thrFlow){isRiver[i]=1;riverCells++}
   // lakes: filled depressions
   const lakeDepth=new Float32Array(N);for(let i=0;i<N;i++)lakeDepth[i]=mask[i]?level[i]-h[i]:0;
@@ -192,7 +192,7 @@ function build(opts={}){
   const BIOMES=['sea','plains','forest','hills','mountain','ice','desert','canyon','tundra','marsh','lake'];
   const tempBase={kingdom:[.22,.78],frozen:[-.12,.9],desert:[.6,.5],islands:[.42,.6]}[kind]||[.22,.78];
   for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const i=y*GW+x;if(!mask[i]){biome[i]=0;continue}
-    let m=moistureBase[i]+.38*Math.exp(-dRiver[i]/5)+.16*Math.exp(-dLand[i]/22)-(h[i]-20)/80*.45;if(kind==='desert')m-=.36;if(kind==='frozen')m+=.05;m+=NC.n2(x/17,y/17)*.08;moisture[i]=m;
+    let m=moistureBase[i]+.38*Math.exp(-dRiver[i]/5)+.16*Math.exp(-dLand[i]/22)-(h[i]-20)/80*.45;if(kind==='desert')m-=.36;if(kind==='frozen')m+=.05;if(traits.wet)m+=.2;if(traits.dry)m-=.2;m+=NC.n2(x/17,y/17)*.08;moisture[i]=m;
     let t=tempBase[0]+tempBase[1]*(y/GH)-(h[i]-20)/80*.95+NB.n2(x/40+9,y/40)*.05;temp[i]=t;
     let b;if(lakeMask[i])b=10;else if(h[i]>=87||t<.1)b=5;else if(h[i]>=62)b=4;else if(h[i]>=50)b=3;else if(riftZone[i]>.35&&h[i]<44)b=7;else if(m>.86&&h[i]<25&&dLand[i]<14)b=9;else if(kind==='desert'&&m<.52)b=6;else if(m>.6&&t>.2)b=2;else if(t<.24)b=8;else b=1;biome[i]=b}
 

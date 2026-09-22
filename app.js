@@ -24,7 +24,7 @@ function paintAll(g,progress=1,opts={}){const pal=palette(),v=view();const z=opt
   g.restore();
   AtlasRender.paintFurniture(g,model,v,{palette:$('palette').value,progress,title,showFurniture:!filmStart&&opts.furniture!==false});
   g.setTransform(1,0,0,1,0,0)}
-function draw(progress=1){if(!model)return;paintAll(ctx,progress)}
+function draw(progress=1){if(!model)return;paintAll(ctx,progress);if(progress>=.99&&!filmStart)window.AtlasReader?.overlay(ctx)}
 
 function generate(){if(mode==='story'){const p=$('prompt').value;seed=hash(p);kind=/island|archipelago|isles/i.test(p)?'islands':/desert|sand|dune/i.test(p)?'desert':/frozen|snow|ice|winter|glacial|tundra/i.test(p)?'frozen':'kingdom';if(/island kingdom/i.test(p))kind='kingdom';
     if(/glacial peaks in the north.*rift valley/i.test(p)&&kind==='kingdom')kind='kingdom';traits=detectTraits(p);title=p.match(/["“]([^"”]{1,60})["”]/)?.[1]||TITLES[kind]}
@@ -32,7 +32,7 @@ function generate(){if(mode==='story'){const p=$('prompt').value;seed=hash(p);ki
   edits=[];strokes=[];history=[];zoom=1;pan={x:0,y:0};make();$('status').textContent='Your world has been drawn. Explore it, or add your own details.'}
 
 /* ---------- Controls ---------- */
-document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(t=>t.setAttribute('aria-selected',String(t===b)));['story','seed','draw'].forEach(id=>$(id).hidden=id!==mode);$('build').hidden=mode==='draw';canvas.style.cursor=mode==='draw'?'crosshair':'grab'});
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(t=>t.setAttribute('aria-selected',String(t===b)));['story','seed','draw','passage'].forEach(id=>$(id).hidden=id!==mode);$('build').hidden=mode==='draw'||mode==='passage';canvas.style.cursor=mode==='draw'?'crosshair':'grab'});
 document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;document.querySelectorAll('[data-tool]').forEach(t=>t.classList.toggle('active',t===b))});
 document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{$('prompt').value={islands:'A shattered archipelago of forested islands, mountain peaks and coastal harbours. "The Shattered Isles"',frozen:'A frozen northern kingdom, snowy mountains, dark pine forests and isolated holds. "The Winter Reach"',desert:'A vast desert empire of dunes, red mountains, a great river and ancient fortresses. "The Amber Dominion"'}[b.dataset.preset];generate()});
 $('build').onclick=generate;
@@ -66,12 +66,12 @@ const slug=()=>title.replace(/[^a-z0-9]/gi,'-').replace(/-+/g,'-').toLowerCase()
 $('export').onclick=()=>{$('status').textContent='Rendering a 3200 × 2200 print…';setTimeout(()=>{const cv=document.createElement('canvas');cv.width=W*2;cv.height=H*2;const g=cv.getContext('2d');paintAll(g,1,{scale:2,zoom:1,pan:{x:0,y:0},rasterScale:2});cv.toBlob(b=>{download(b,slug()+'-'+view()+'.png');$('status').textContent='Map exported as a 3200 × 2200 PNG.'},'image/png')},30)};
 $('assets').onclick=()=>{const pal=palette();const svg=AtlasRender.SvgContext();const size=AtlasRender.symbolSheet(svg,pal,true);download(new Blob([svg.toSVG(size.width,size.height,null)],{type:'image/svg+xml'}),'inkbound-symbols-'+$('palette').value+'.svg');
   const cv=document.createElement('canvas');cv.width=size.width*2;cv.height=size.height*2;const g=cv.getContext('2d');g.scale(2,2);AtlasRender.symbolSheet(g,pal,true);cv.toBlob(b=>download(b,'inkbound-symbols-'+$('palette').value+'.png'));$('status').textContent=`${AtlasRender.SHEET_TYPES.length*5} symbols exported as SVG (editable vectors) and transparent PNG.`};
-$('save').onclick=()=>download(new Blob([JSON.stringify({version:2,seed,kind,title,traits,edits,strokes,detail:$('detail').value,palette:$('palette').value,studio:window.AtlasStudio?.settings()})],{type:'application/json'}),slug()+'-world.json');
+$('save').onclick=()=>download(new Blob([JSON.stringify({version:2,seed,kind,title,traits,edits,strokes,detail:$('detail').value,palette:$('palette').value,studio:window.AtlasStudio?.settings(),reading:window.AtlasReader?.state()})],{type:'application/json'}),slug()+'-world.json');
 $('load').onchange=async e=>{try{const d=JSON.parse(await e.target.files[0].text());if(![1,2].includes(d.version)||!Number.isFinite(d.seed)||!['kingdom','islands','desert','frozen'].includes(d.kind)||!Array.isArray(d.strokes)||d.strokes.length>10000||!AtlasRender.PALETTES[d.palette])throw Error();
     if(d.strokes.some(s=>!Array.isArray(s)||s.length>10000||s.some(f=>!Number.isFinite(f.x)||!Number.isFinite(f.y)||!Number.isFinite(f.s))))throw Error();
     seed=d.seed>>>0;kind=d.kind;title=String(d.title).slice(0,60);traits=d.traits&&typeof d.traits==='object'?d.traits:{};edits=Array.isArray(d.edits)?d.edits.filter(x=>Number.isFinite(x.x)&&Number.isFinite(x.y)&&['land','sea'].includes(x.type)).slice(0,5000):[];
     strokes=d.strokes.map(s=>s.filter(f=>f.type!=='land'&&f.type!=='sea').map(f=>({...f,type:f.type==='tree'?'broadleaf':f.type,name:f.name?String(f.name).slice(0,60):undefined})));history=strokes.map(()=>({type:'stroke'}));
-    window.AtlasStudio?.restore(d.studio);$('detail').value=d.detail;$('palette').value=d.palette;make();$('status').textContent='World opened.'}catch{$('status').textContent='That file could not be opened. Choose an Inkbound world JSON file.'}e.target.value=''};
+    window.AtlasStudio?.restore(d.studio);window.AtlasReader?.restore(d.reading);$('detail').value=d.detail;$('palette').value=d.palette;make();$('status').textContent='World opened.'}catch{$('status').textContent='That file could not be opened. Choose an Inkbound world JSON file.'}e.target.value=''};
 
 /* ---------- Reveal film (2D atlas) ---------- */
 const FILM_DURATION=35.555556;let filmBusy=false,recorder=null,recordingChunks=[],filmSource=null,filmStream=null,restoreCamera=null;

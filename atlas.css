@@ -12,3 +12,30 @@
 #globe-film:after{border-color:#5a4630}
 #globe-film{border-color:#3b2b1c;box-shadow:inset 0 0 0 1px #6b563a}
 .globe-footer{color:#b59f7a}
+
+/* Read tab: Jev reading */
+.linkish{border:0;padding:0;color:var(--gold);text-decoration:underline;font-size:12px}
+.reading{margin-top:16px;border:1px solid var(--line);border-radius:4px;padding:12px;background:#19211f}
+.reading h4{margin:0 0 8px;font:500 15px 'Cormorant Garamond',Georgia,serif;color:var(--gold);letter-spacing:1px}
+.reading .q{display:grid;grid-template-columns:86px 1fr 38px;gap:8px;align-items:center;font-size:11px;color:var(--muted);margin:5px 0}
+.reading .q b{color:var(--text);font-weight:500}
+.reading .q .bar{height:7px;border-radius:4px;background:#0f1514;overflow:hidden;position:relative}
+.reading .q .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--gold);width:0;transition:width .9s ease}
+.reading .q .bar i.split{background:#8a7a55}
+.reading .q.silent b,.reading .q.silent .p{color:#8f8a7a}
+.reading .q .p{font-variant-numeric:tabular-nums;text-align:right}
+.reading .q .cut{display:block;font-size:10px;color:var(--muted)}
+.reading .silentline{margin:10px 0 0;font-size:11px;line-height:1.6;color:var(--muted)}
+.reading .silentline b{color:var(--gold)}
+.reading .sp{display:flex;gap:4px;margin-top:3px}
+.reading .sp i{flex:1;height:7px;border-radius:2px;background:#0f1514;position:relative;overflow:hidden}
+.reading .sp i::after{content:"";position:absolute;left:0;top:0;bottom:0;width:var(--w);background:var(--gold)}
+.reading .sp i.win::after{background:#f0dcae}
+.reading .spl{display:flex;gap:4px;font-size:9px;color:var(--muted);letter-spacing:.5px}
+.reading .spl span{flex:1;text-align:center}
+#read-jev[disabled]{opacity:.55;cursor:wait}
+.jevdlg{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:22px;max-width:460px}
+.jevdlg::backdrop{background:#0009}
+.jevdlg h3{margin:0 0 8px;font:500 24px 'Cormorant Garamond',Georgia,serif}
+.jevdlg p{font-size:12px;color:var(--muted);line-height:1.6}
+.jevdlg .row{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}

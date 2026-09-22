@@ -51,3 +51,12 @@ Google Fonts. Soundtrack credits are in the page footer.
 
 AI disclosure: this cartography rewrite was produced with Claude (Anthropic) from the earlier Inkbound
 prototype, directed and reviewed by Marc Watkins.
+
+
+## Read tab · a passage becomes a map (Jev)
+
+Paste a page of prose and choose **Read with Jev, then draw**. Jev, TypeSafe AI's System One judgment model, answers eight fixed questions about the place in the text and returns a probability for each: land shape (mainland, islands, desert, frozen), coast, mountains, forest, river, settlement level (five rungs), mood (bleak, serene, menacing, prosperous), and whether a rift or gorge is present. The confident answers become the world: shape sets the generator kind, mountains set geological character, settlement sets detail, forest and river bias moisture and drainage, mood picks the ink and paper. The seed is a hash of the passage, so the same page always draws the same map.
+
+Where the text is silent or the model is unsure, the map fogs at the margins and a Terra Incognita cartouche lists what the passage did not say. Five public-domain passages are built in (Melville, Hardy, Brontë, Stevenson, London). The reading is stored in saved world files. Jev never writes anything; every number shown is one the model returned.
+
+The page posts to a proxy that holds the API key and stores nothing (default: the University of Mississippi Worker from the Jev Sandbox). Use **Jev connection** under the passage to point at your own proxy. Files: `jev-reader.js`, small hooks in `app.js` and `atlas-core.js` (new traits `wet`, `dry`, `rivers`, `dryland`).
